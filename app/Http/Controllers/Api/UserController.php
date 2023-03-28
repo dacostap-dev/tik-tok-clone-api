@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\UserCollection;
+use App\Models\Post;
 use App\Models\User;
-use App\Services\FileService;
 use Illuminate\Http\Request;
+use App\Services\FileService;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\PostCollection;
+use App\Http\Resources\UserCollection;
 
 class UserController extends Controller
 {
@@ -58,9 +60,13 @@ class UserController extends Controller
   public function show(string $id)
   {
     try {
-      $user = User::findOrFail($id);
+      $user = User::where('id', $id)->get();
+      $posts = Post::where('user_id', $id)->orderBy('created_at', 'desc')->get();
 
-      return response()->json(['success' => 'Ok', 'user' => $user], 200);
+      return response()->json([
+        'user' => new UserCollection($user),
+        'posts' => new PostCollection($posts),
+      ], 200);
     } catch (\Exception $e) {
       return response()->json(['error' => $e->getMessage()], 400);
     }
