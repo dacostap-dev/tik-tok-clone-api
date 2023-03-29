@@ -59,8 +59,8 @@ class PostController extends Controller
   public function show($id)
   {
     try {
-      $post = Post::firstOrFail($id); //revisar
-      $postsByUser = Post::where('user_id', $post->user_id)->get();
+      $post = Post::where('id', $id)->get();
+      $postsByUser = Post::where('user_id', $post[0]->user_id)->get();
 
       $ids = $postsByUser->map(function ($post) {
         return $post->id;
