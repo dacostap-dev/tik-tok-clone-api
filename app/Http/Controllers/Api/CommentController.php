@@ -19,7 +19,7 @@ class CommentController extends Controller
     ]);
 
     try {
-      $comment = new Comment;
+      $comment = new Comment();
 
       $comment->post_id = $request->input('post_id');
       $comment->user_id = auth()->user()->id;
