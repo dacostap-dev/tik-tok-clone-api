@@ -30,8 +30,10 @@ class FileService
     );
 
     $name = time() . '.' . $extension;
-    $image->save(public_path() . '/files/' . $name);
-    $model->image = '/files/' . $name;
+    $path = storage_path() . '/app/public/files/';
+    $image->save($path . $name);
+
+    $model->image = '/storage/files/' . $name;
 
     return $model;
   }
@@ -41,8 +43,8 @@ class FileService
     $video = $request->file('video');
     $extension = $video->getClientOriginalExtension();
     $name = time() . '.' . $extension;
-    $video->move(public_path() . '/files/', $name);
-    $model->video = '/files/' . $name;
+    $video->move(storage_path() . '/app/public/files/', $name);
+    $model->video = '/storage/files/' . $name;
 
     return $model;
   }
