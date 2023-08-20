@@ -7,8 +7,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\FileService;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\PostCollection;
 use App\Http\Resources\UserCollection;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rules;
 
 class UserController extends Controller
 {
@@ -26,9 +29,67 @@ class UserController extends Controller
     }
   }
 
-  public function index()
+  /**
+   * Request token to flutter App (Login)
+   */
+
+  public function requestToken(Request $request): string
   {
-    //
+    $request->validate([
+      'email' => 'required|email',
+      'password' => 'required',
+      'device_name' => 'required',
+    ]);
+
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user || !Hash::check($request->password, $user->password)) {
+      throw ValidationException::withMessages([
+        'email' => ['The provided credentials are incorrect.'],
+      ]);
+    }
+
+    return $user->createToken($request->device_name)->plainTextToken;
+  }
+
+  /**
+   * Create user an d token to flutter App (Register)
+   */
+
+  public function createUserApp(Request $request)
+  {
+    $request->validate([
+      'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
+      'password' => ['required', 'confirmed', Rules\Password::defaults()],
+      'device_name' => 'required',
+    ]);
+
+
+    try {
+
+
+      $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'image' => '/default-avatar.jpeg',
+        'bio' => $request->bio,
+        'password' => Hash::make($request->password),
+      ]);
+
+      return $user->createToken($request->device_name)->plainTextToken;
+    } catch (\Exception $e) {
+      return response()->json(['error' => $e->getMessage()], 400);
+    }
+  }
+
+
+  /**
+   * Request to delete token to flutter App (Logout)
+   */
+
+  public function deleteToken(Request $request): string
+  {
+    return  $request->user()->currentAccessToken()->delete();
   }
 
   /**

@@ -27,10 +27,16 @@ Route::get('/get-random-users', [GlobalController::class, 'getRandomUsers']);
 Route::get('/posts', [PostController::class, 'index']);
 
 
+Route::post('/request-token', [UserController::class, 'requestToken']);
+Route::post('/register-app', [UserController::class, 'createUserApp']);
+
+
 Route::middleware(['auth:sanctum'])->group(function () {
   Route::get('/user', [UserController::class, 'getAuthUser']);
   Route::post('/user/update', [UserController::class, 'update']);
   Route::post('/user/update-image', [UserController::class, 'updateUserImage']);
+
+  Route::delete('/delete-token', [UserController::class, 'deleteToken']);
 
   Route::get('/posts/{id}', [PostController::class, 'show']);
   Route::post('/posts', [PostController::class, 'store']);
